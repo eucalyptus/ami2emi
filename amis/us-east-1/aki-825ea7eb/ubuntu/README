@@ -1,0 +1,9 @@
+"all.txt" is the list of all AMIs in this subset.
+
+"amis-aa" et al are this full set split into chunks of 10.
+
+"out-aa" et al are the results of the ami conversion for each set.
+
+Here's a great way to run multiple AMI IDs through the scripts:
+
+cat amis/ubuntu-aki-825ea7eb-us-east/1-10.txt | xargs ./ami-multi-launcher.sh

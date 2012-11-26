@@ -1,0 +1,10 @@
+ami-0c309565 ERROR-20 could not ssh to instance
+ami-0ca21c65 ERROR-20 could not ssh to instance
+ami-0cc16265 ERROR-10 instance failed to enter running state
+ami-0ce65d65 ERROR-10 instance failed to enter running state
+ami-0cee4c65 ok
+ami-0d279a64 ERROR-20 could not ssh to instance
+ami-0d2a9c64 ok
+ami-0d2f8664 ERROR-20 could not ssh to instance
+ami-0da37d64 ERROR-10 instance failed to enter running state
+ami-0dc27264 ERROR-20 could not ssh to instance

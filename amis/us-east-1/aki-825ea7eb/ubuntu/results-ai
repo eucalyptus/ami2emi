@@ -1,0 +1,10 @@
+ami-1597257c ok
+ami-161fc57f ERROR-20 could not ssh to instance
+ami-1662b97f ERROR-20 could not ssh to instance
+ami-166bcd7f ERROR-5 instance was not launched
+ami-168d337f ERROR-5 instance was not launched
+ami-16a8137f ERROR-10 instance failed to enter running state
+ami-1723f27e ERROR-20 could not ssh to instance
+ami-1735f37e ok
+ami-174be57e ERROR-20 could not ssh to instance
+ami-1812c871 ERROR-20 could not ssh to instance

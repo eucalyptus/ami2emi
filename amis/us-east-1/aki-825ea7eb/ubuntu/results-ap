@@ -1,0 +1,10 @@
+ami-28ed3241 ok
+ami-2941f240 ok
+ami-29ae7840 ERROR-20 could not ssh to instance
+ami-2a309543 ERROR-20 could not ssh to instance
+ami-2a34ee43 ERROR-20 could not ssh to instance
+ami-2a50ee43 ERROR-10 instance failed to enter running state
+ami-2a8a2743 ERROR-20 could not ssh to instance
+ami-2abc0443 ERROR-20 could not ssh to instance
+ami-2b9e3742 ok
+ami-2bbd6b42 ERROR-20 could not ssh to instance

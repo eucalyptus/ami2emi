@@ -1,0 +1,10 @@
+ami-002bf169 ERROR-10 instance failed to enter running state
+ami-006bcd69 ERROR-5 instance was not launched
+ami-00a41f69 ok
+ami-00b14b69 ok
+ami-00d47069 ERROR-10 instance failed to enter running state
+ami-00ed3569 ERROR-20 could not ssh to instance
+ami-01209768 ERROR-10 instance failed to enter running state
+ami-01319968 ERROR-5 instance was not launched
+ami-013f9768 ok
+ami-022a946b ERROR-10 instance failed to enter running state
