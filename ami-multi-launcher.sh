@@ -23,6 +23,7 @@ do
     # Run the AMI launcher.
     # Tries to bundle by default; add --no-bundle to stop this.
     # Terminates all created instances by default; add --no-terminate to stop this.
+    # Deletes Euca images by default; add --keep-image to stop this.
     ./ami2emi.sh \
         --aws-login "ubuntu" \
         --aws-ami ${AMI_ID} \
@@ -34,12 +35,13 @@ do
         --euca-eki ${EUCA_EKI_ID} \
         --euca-eri ${EUCA_ERI_ID} \
         --no-terminate \
+        --keep-image \
         --euca-key-id ${EUCA_KEY_ID} 1>logs/${AMI_ID}.log 2>logs/${AMI_ID}.err 
     # Print results based on return code.
     case $? in
         0) echo "${AMI_ID} ok" ;;
         2) echo "${AMI_ID} ERROR-2 could not source aws creds" ;;
-        5) echo "${AMI_ID} ERROR-5 instance was not launched" ;;
+        5) echo "${AMI_ID} ERROR-5 instance was not launched (no rights to AMI?)" ;;
         10) echo "${AMI_ID} ERROR-10 euca instance failed to enter running state" ;;
         20) echo "${AMI_ID} ERROR-20 could not ssh to aws instance" ;;
         30) echo "${AMI_ID} ERROR-30 could not scp to aws instance" ;;

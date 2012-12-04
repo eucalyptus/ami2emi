@@ -16,6 +16,8 @@ SSH="ssh -oStrictHostKeyChecking=no"
 NO_BUNDLE='false'
 # Terminate instances by default.
 NO_TERMINATE='false'
+# Delete images created in Euca by default.
+KEEP_IMAGE='false'
 # Set size to "large" to cut timeout probability.
 AMI_TYPE='m1.large'
 # Set the timeout really high. Like, 10 minutes high.
@@ -38,9 +40,22 @@ terminate_aws_instance () {
 }
 
 terminate_euca_instance () {
-    # We will terminate all euca instanes for now.  We can add a flag later.
-    euca-terminate-instances ${EUCA_INSTANCE_ID}
-    echo "  Terminating Euca instance ${EUCA_INSTANCE_ID}"
+    if [ ${NO_TERMINATE} == 'false' ] ; then
+        echo "Terminating Euca instance ${EUCA_INSTANCE_ID}"
+        euca-terminate-instances ${EUCA_INSTANCE_ID}
+    else
+        echo "--no-terminate specified, ${EUCA_INSTANCE_ID} still active (remember to clean up!)"
+    fi
+}
+
+delete_euca_image () {
+    if [ ${KEEP_IMAGE} == 'false' ] ; then
+        echo "Deleting Euca image ${EMI_ID}"
+        euca-delete-bundle -b amitest -p ${AMI_ID}
+	euca-deregister ${EMI_ID}
+    else
+        echo "--keep-image specified, ${EMI_ID} still active (remember to clean up!)"
+    fi
 }
 
 #####
@@ -61,6 +76,7 @@ if [ $# -eq 0 ] ; then
     echo "  --euca-eri [eri-id] (Euca ERI to associate at bundle time)"
     echo "  --no-bundle (Takes no args, no bundling will be attempted)"
     echo "  --no-terminate (Takes no args, AWS instance will stay alive for debugging)"
+    echo "  --keep-image (Takes no args, Euca image will stay alive for debugging)"
     exit 1
 fi
 while [ $# -gt 1 ] ; do
@@ -77,6 +93,7 @@ while [ $# -gt 1 ] ; do
         --euca-eri) EUCA_ERI_ID=$2 ; shift 2 ;;
         --no-bundle) NO_BUNDLE='true' ; shift 1 ;;
         --no-terminate) NO_TERMINATE='true' ; shift 1 ;;
+        --keep-image) KEEP_IMAGE='true' ; shift 1 ;;
          *) shift 1 ;;
     esac
 done
@@ -92,7 +109,7 @@ fi
 #####
 # 200. Start an AWS instance and grab the instance ID. Ex: i-12345678
 # Note that we should bail if we don't actually get an ID.
-AWS_INSTANCE_ID=`euca-run-instances ${AMI_ID} -k ${AWS_KEY_ID} -t ${AMI_TYPE} | perl -ne '/(i-\S{8})/ && print $1'`
+AWS_INSTANCE_ID=`euca-run-instances ${AMI_ID} -k ${AWS_KEY_ID} -t ${AMI_TYPE} | perl -ne '/\s(i-\S{8})/ && print $1'`
 # Is AWS_INSTANCE_ID null?
 if [ -z ${AWS_INSTANCE_ID} ] 
 then
@@ -262,6 +279,7 @@ source ${EUCA_CREDS}/eucarc
 if [ $? -ne 0 ]; then
     echo "FATAL: could not source Euca creds"
     terminate_aws_instance
+    delete_euca_image
     exit 60
 fi
 
@@ -274,6 +292,7 @@ if [ -z ${EUCA_INSTANCE_ID} ]
 then
     echo "FATAL: Euca instance not started"
     terminate_aws_instance
+    delete_euca_image
     exit 65
 fi
 
@@ -292,11 +311,12 @@ do
         echo "Timeout waiting for Euca instance to reaching RUNNING state"
         terminate_aws_instance
         terminate_euca_instance
+        delete_euca_image
         exit 70
     fi
     # greps for both instance id and "running" in the same line,
     # and reset EUCA_INSTANCE_RUNNING if both are found
-    euca-describe-instances | grep ${AWS_INSTANCE_ID} | grep "running" && let "EUCA_INSTANCE_RUNNING=0"
+    euca-describe-instances | grep ${EUCA_INSTANCE_ID} | grep "running" && let "EUCA_INSTANCE_RUNNING=0"
 done
 echo "${EUCA_INSTANCE_ID} started successfully"
 
@@ -325,7 +345,7 @@ do
     # did we fail repeatedly? if so, exit.
     if [ $EUCA_SSH_TRIES -le "0" ]; then
         echo "timeout trying to ssh to Euca"
-        euca-get-console-output > /tmp/console-${EUCA_INSTANCE_ID}.log
+        euca-get-console-output ${EUCA_INSTANCE_ID} > /tmp/console-${EUCA_INSTANCE_ID}.log
         echo "********************************"
         echo "* tail -n 25 of Euca console:  *"
         echo "********************************"
@@ -334,25 +354,21 @@ do
         echo "See /tmp/console-${EUCA_INSTANCE_ID}.log for full output"
         terminate_euca_instance
         terminate_aws_instance
+        delete_euca_image
         exit 75
     fi
-    let "AWS_SSH_TRIES-=1"
+    let "EUCA_SSH_TRIES-=1"
     # did we fail, but not enough yet? wait 30 seconds to try again
-    if [ "${AWS_SSH_UP}" -ne "0" ]; then
+    if [ "${EUCA_SSH_UP}" -ne "0" ]; then
         echo "  waiting 30 seconds for next attempt"
         sleep 30
     fi
 done
 
 #####
-# 800. TODO
-# Delete and unbundle the image.
-# euca-delete-bundle -b amitest (how do you delete specific bundle?)
-# euca-deregister ${AMI_ID}
-
-#####
 # 999. Exit normally.
 terminate_euca_instance
 terminate_aws_instance
+delete_euca_image
 exit 0
 
