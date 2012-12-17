@@ -25,7 +25,7 @@ do
     # Terminates all created instances by default; add --no-terminate to stop this.
     # Deletes Euca images by default; add --keep-image to stop this.
     ./ami2emi.sh \
-        --aws-login "ubuntu" \
+        --aws-login "bitnami" \
         --aws-ami ${AMI_ID} \
         --aws-creds ${AWS_CREDS} \
         --aws-key-file ${AWS_KEY_FILE} \

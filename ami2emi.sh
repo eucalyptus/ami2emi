@@ -228,8 +228,11 @@ fi
 cat <<EOF
 #!/bin/bash
 set -x
+# Empty out the Ubuntu persistent-net rules
+cat /dev/null > /etc/udev/rules.d/70-persistent-net.rules
 source /tmp/euca_creds/eucarc
-euca-bundle-vol -p ${AMI_ID} -d /mnt/ -e /var/lib/dhcp/ -s 4096 --generate-fstab --kernel ${EUCA_EKI_ID} --ramdisk ${EUCA_ERI_ID}
+# euca-bundle-vol -p ${AMI_ID} -d /mnt/ -e /var/lib/dhcp/ -s 4096 --generate-fstab --kernel ${EUCA_EKI_ID} --ramdisk ${EUCA_ERI_ID}
+euca-bundle-vol -p ${AMI_ID} -d /mnt/ -e /var/lib/dhcp/ -s 4096 --kernel ${EUCA_EKI_ID} --ramdisk ${EUCA_ERI_ID}
 euca-upload-bundle -b amitest -m /mnt/${AMI_ID}.manifest.xml
 if [ \$? -ne 0 ]; then
     cat "FATAL: euca-upload-bundle failed"
